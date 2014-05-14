@@ -8,11 +8,22 @@
 
     <link rel="stylesheet" href="styles.css"/>
     <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+    <script src="reader.js"></script>
     <script src="script.js"></script>
+    <script>
+        // For testing purposes only
+        tally = {'0002748742': {name: 'Finn', qty: 21}};
+
+        // Simulate a scan
+        function scan() {
+            $('#reader').val('0002748742');
+            reader.read();
+            render();
+        }
+
+    </script>
 </head>
 <body>
-<input type="text" id="reader"/>
-
 <div id="container">
     <h1>Coffee Manager</h1>
     <div id="chart"></div>
@@ -23,6 +34,7 @@
 </div>
 
 <div id="recent"></div>
+<div id="overlay" style="display: none"></div>
 
 </body>
 </html>
