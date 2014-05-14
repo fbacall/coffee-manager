@@ -9,6 +9,10 @@ $(document).ready(function () {
     reader = new Reader();
     reader.callback = addCoffee;
     render();
+
+    $('#check-button').click( function () {
+        displayBalancePrompt();
+    } );
 });
 
 function render() {
@@ -74,21 +78,31 @@ function popup(message, duration, disableReader) {
     if(disableReader)
         reader.disable();
 
-    if(duration > 0) {
-        window.setTimeout(function () {
-            popupElement.remove();
-            $('#overlay').fadeOut(300);
-            if (disableReader)
-                reader.enable();
-        }, duration);
-    } else {
-        popupElement.click(function () {
-            $(this).remove();
-            $('#overlay').fadeOut(300);
-        });
-    }
+    var closeFunction = function () {
+        popupElement.remove();
+        $('#overlay').fadeOut(300);
+        if (disableReader)
+            reader.enable();
+    };
+
+    if(duration > 0)
+        window.setTimeout(closeFunction, duration);
+
+    popupElement.click(closeFunction);
+
+    return popupElement;
 }
 
-function showBalance() {
-    popup('Swipe card');
+function displayBalancePrompt() {
+    var el = popup('Swipe card');
+    reader.callback = function (id) {
+        el.remove();
+        displayBalance(id);
+    };
 }
+
+function displayBalance(id) {
+    popup('Balance: £' + cost(tally[id].qty), 5000);
+    reader.callback = addCoffee;
+}
+
