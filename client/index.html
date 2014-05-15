@@ -9,16 +9,16 @@
     <link rel="stylesheet" href="styles.css"/>
     <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
     <script src="reader.js"></script>
+    <script src="popup.js"></script>
     <script src="script.js"></script>
     <script>
         // For testing purposes only
         tally = {'0002748742': {name: 'Finn', qty: 21}};
 
-        // Simulate a scan
+        // Simulate a card scan
         function scan() {
-            $('#reader').val('0002748742');
+            reader.buffer = '0002748742';
             reader.read();
-            render();
         }
 
     </script>

@@ -59,50 +59,31 @@ function addCoffee(id) {
         if(recentCoffees.length > 5)
             recentCoffees.shift();
 
-        coffeePopup(tally[id].name, tally[id].qty);
+        new Popup(name + ' +1 <br/>(' + number + ' total)', 2000).open();
         render();
     } else {
-        console.log('Unrecognized ID: ' + id);
+        new Popup('Unrecognized ID: ' + id, 1000).open();
     }
 }
 
-function coffeePopup(name, number) {
-    popup(name + ' +1 <br/>(' + number + ' total)', 2000, true)
-}
-
-function popup(message, duration, disableReader) {
-    var popupElement = $("<div class='popup'></div>");
-    $('body').append(popupElement);
-    $('#overlay').fadeIn(300);
-    popupElement.html(message);
-    if(disableReader)
-        reader.disable();
-
-    var closeFunction = function () {
-        popupElement.remove();
-        $('#overlay').fadeOut(300);
-        if (disableReader)
-            reader.enable();
-    };
-
-    if(duration > 0)
-        window.setTimeout(closeFunction, duration);
-
-    popupElement.click(closeFunction);
-
-    return popupElement;
-}
-
 function displayBalancePrompt() {
-    var el = popup('Swipe card');
-    reader.callback = function (id) {
-        el.remove();
-        displayBalance(id);
+    var popup = new Popup('Swipe your card');
+    var cb;
+
+    popup.onOpen = function () {
+        cb = reader.callback;
+        var p = this;
+        reader.callback = function (id) {
+            if(tally[id] != null)
+                p.setMessage('<strong>' + tally[id].name + '</strong><br/>Coffees: ' + tally[id].qty + '<br/>Balance: £' + cost(tally[id].qty));
+            else
+                p.setMessage('Invalid ID');
+        };
     };
-}
 
-function displayBalance(id) {
-    popup('Balance: £' + cost(tally[id].qty), 5000);
-    reader.callback = addCoffee;
-}
+    popup.onClose = function () {
+        reader.callback = cb;
+    };
 
+    popup.open();
+}
