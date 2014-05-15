@@ -10,9 +10,9 @@ $(document).ready(function () {
     reader.callback = addCoffee;
     render();
 
-    $('#check-button').click( function () {
-        displayBalancePrompt();
-    } );
+    $('#check-button').click(function () {
+        displayBalance();
+    });
 });
 
 function render() {
@@ -59,25 +59,34 @@ function addCoffee(id) {
         if(recentCoffees.length > 5)
             recentCoffees.shift();
 
-        new Popup(name + ' +1 <br/>(' + number + ' total)', 2000).open();
+        var popup = new Popup(tally[id].name + ' +1 <br/>(' + tally[id].qty + ' total)', 2000);
+
+        popup.onOpen = function () {
+            reader.disable();
+        };
+
+        popup.onClose = function () {
+            reader.enable();
+        };
+
+        popup.open();
         render();
     } else {
         new Popup('Unrecognized ID: ' + id, 1000).open();
     }
 }
 
-function displayBalancePrompt() {
+function displayBalance() {
     var popup = new Popup('Swipe your card');
     var cb;
 
     popup.onOpen = function () {
         cb = reader.callback;
-        var p = this;
         reader.callback = function (id) {
             if(tally[id] != null)
-                p.setMessage('<strong>' + tally[id].name + '</strong><br/>Coffees: ' + tally[id].qty + '<br/>Balance: £' + cost(tally[id].qty));
+                popup.setMessage('<strong>' + tally[id].name + '</strong><br/>Coffees: ' + tally[id].qty + '<br/>Balance: £' + cost(tally[id].qty));
             else
-                p.setMessage('Invalid ID');
+                popup.setMessage('Invalid ID');
         };
     };
 
