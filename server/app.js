@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = function(app, db) {
-    var User = require('./user')(db);
+    var User = require('./models/user')(db);
 
     app.param('user_id', function(req, res, next, id){
         User.find(id, function(err, user){
@@ -56,12 +56,12 @@ module.exports = function(app, db) {
         console.log("Payment for user " + req.user.name + ' : ' + req.body.amount);
         if(!isNaN(payment) && payment > 0) {
             req.user.addPayment();
-            req.user.recentPayments(function (err, coffeeList) {
+            req.user.recentPayments(function (err, paymentList) {
                 if(err) {
                     console.log("ERROR: " + err.stack);
                     res.status(500).send('');
                 } else {
-                    res.status(201).send(coffeeList[0]);
+                    res.status(201).send(paymentList[0]);
                 }
             });
         } else {
@@ -71,7 +71,6 @@ module.exports = function(app, db) {
 
     app.get('/users/:user_id/balance', function (req, res) {
         req.user.balance(function (err, balance) {
-            console.log(balance);
             if(err) {
                 console.log("ERROR: " + err.stack);
                 res.status(500).send('');
