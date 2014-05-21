@@ -11,9 +11,11 @@ module.exports = function(db) {
     }
 
     User.selectQuery = db.prepare("SELECT * FROM Users WHERE id = ? LIMIT 1");
+    User.createQuery = db.prepare("INSERT INTO Users(id, card_id, name) VALUES (NULL, ?, ?)");
 
-    User.prototype.addCoffee = function () {
-        Coffee.create(this.id, 0.25);
+
+    User.prototype.addCoffee = function (callback) {
+        Coffee.create(this.id, 0.25, callback);
     };
 
     User.prototype.recentCoffees = function (callback) {
@@ -22,8 +24,8 @@ module.exports = function(db) {
         });
     };
 
-    User.prototype.addPayment = function (amount) {
-        Payment.create(this.id, amount);
+    User.prototype.addPayment = function (amount, callback) {
+        Payment.create(this.id, amount, callback);
     };
 
     User.prototype.recentPayments = function (callback) {
@@ -51,6 +53,10 @@ module.exports = function(db) {
             }
             callback(err, user);
         });
+    };
+
+    User.create = function(user, callback) {
+        db.doInsert(User.createQuery, [user.card_id, user.name], callback);
     };
 
     return User;

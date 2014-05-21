@@ -9,13 +9,15 @@ module.exports = function(db) {
     Payment.totalQuery = db.prepare("SELECT SUM(amount) FROM Payments");
     Payment.userTotalQuery = db.prepare("SELECT SUM(amount) FROM Payments WHERE user_id = ?");
 
-    Payment.create = function (user_id, amount) {
-        db.doInsert(Payment.addQuery, [user_id, amount]);
+    Payment.create = function (user_id, amount, callback) {
+        db.doInsert(Payment.addQuery, [user_id, amount], callback);
     };
 
     Payment.total = function (user_id, callback) {
         var f = function (err, payments) {
             var payment = parseFloat(payments[0]['SUM(amount)']);
+            if(isNaN(payment))
+                payment = 0;
             callback(err, payment);
         };
 

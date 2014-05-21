@@ -7,7 +7,7 @@ module.exports = function(app, db) {
         User.find(id, function(err, user){
             if (err) {
                 console.log("Error while fetching user: " + err.stack);
-                res.status(500).send('');
+                res.status(500).send('error');
             } else if (user) {
                 req.user = user;
                 next();
@@ -17,11 +17,25 @@ module.exports = function(app, db) {
         });
     });
 
+    app.post('/users', function (req, res) {
+        User.create(req.body.user, function (err, id) {
+            if (err) {
+                console.log("Error while creating user: " + err.stack);
+                res.status(500).send('error');
+            } else {
+                User.find(id, function (err, user) {
+                    res.status(201).send(user);
+                });
+            }
+        });
+
+    });
+
     app.get('/users/:user_id/coffees', function (req, res) {
         req.user.recentCoffees(function (err, coffeeList) {
             if(err) {
                 console.log("ERROR: " + err.stack);
-                req.status(500).send('');
+                req.status(500).send('error');
             } else {
                 res.status(200).send(coffeeList);
             }
@@ -29,13 +43,19 @@ module.exports = function(app, db) {
     });
 
     app.post('/users/:user_id/coffees', function (req, res) {
-        req.user.addCoffee();
-        req.user.recentCoffees(function (err, coffeeList) {
+        req.user.addCoffee(function (err) {
             if(err) {
                 console.log("ERROR: " + err.stack);
-                res.status(500).send('');
+                res.status(500).send('error');
             } else {
-                res.status(201).send(coffeeList[0]);
+                req.user.recentCoffees(function (err, coffeeList) {
+                    if(err) {
+                        console.log("ERROR: " + err.stack);
+                        res.status(500).send('error');
+                    } else {
+                        res.status(201).send(coffeeList[0]);
+                    }
+                });
             }
         });
     });
@@ -44,7 +64,7 @@ module.exports = function(app, db) {
         req.user.recentPayments(function (err, coffeeList) {
             if(err) {
                 console.log("ERROR: " + err.stack);
-                res.status(500).send('');
+                res.status(500).send('error');
             } else {
                 res.status(200).send(coffeeList);
             }
@@ -55,13 +75,19 @@ module.exports = function(app, db) {
         var payment = parseFloat(req.body.amount);
         console.log("Payment for user " + req.user.name + ' : ' + req.body.amount);
         if(!isNaN(payment) && payment > 0) {
-            req.user.addPayment();
-            req.user.recentPayments(function (err, paymentList) {
+            req.user.addPayment(payment, function (err) {
                 if(err) {
                     console.log("ERROR: " + err.stack);
-                    res.status(500).send('');
+                    res.status(500).send('error');
                 } else {
-                    res.status(201).send(paymentList[0]);
+                    req.user.recentPayments(function (err, paymentList) {
+                        if(err) {
+                            console.log("ERROR: " + err.stack);
+                            res.status(500).send('error');
+                        } else {
+                            res.status(201).send(paymentList[0]);
+                        }
+                    });
                 }
             });
         } else {
@@ -73,7 +99,7 @@ module.exports = function(app, db) {
         req.user.balance(function (err, balance) {
             if(err) {
                 console.log("ERROR: " + err.stack);
-                res.status(500).send('');
+                res.status(500).send('error');
             } else {
                 res.status(200).send(balance.toFixed(2));
             }

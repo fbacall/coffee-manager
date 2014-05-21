@@ -5,17 +5,19 @@ module.exports = function(db) {
 
     Coffee.recentQuery = db.prepare("SELECT * FROM Coffees ORDER BY id DESC LIMIT ?");
     Coffee.userRecentQuery = db.prepare("SELECT * FROM Coffees WHERE user_id = ? ORDER BY id DESC LIMIT ?");
-    Coffee.addQuery = db.prepare("INSERT INTO Payments(id, user_id, amount) VALUES (NULL, ?, ?)");
+    Coffee.addQuery = db.prepare("INSERT INTO Coffees(id, user_id, unit_price) VALUES (NULL, ?, ?)");
     Coffee.costQuery = db.prepare("SELECT SUM(unit_price) FROM Coffees");
     Coffee.userCostQuery = db.prepare("SELECT SUM(unit_price) FROM Coffees WHERE user_id = ?");
 
-    Coffee.create = function (user_id, unit_price) {
-        db.doInsert(Coffee.addQuery, [user_id, unit_price]);
+    Coffee.create = function (user_id, unit_price, callback) {
+        db.doInsert(Coffee.addQuery, [user_id, unit_price], callback);
     };
 
     Coffee.cost = function (user_id, callback) {
         var f = function (err, costs) {
             var cost = parseFloat(costs[0]['SUM(unit_price)']);
+            if(isNaN(cost))
+                cost = 0;
             callback(err, cost);
         };
 

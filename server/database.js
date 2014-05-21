@@ -37,7 +37,10 @@ module.exports = function() {
 // Convenience functions
     db.doInsert = function (statement, values, callback) {
         db.serialize(function () {
-            statement.run(values);
+            statement.run(values, function (err) {
+                if(callback)
+                    callback(err, this.lastID);
+            });
         });
     };
 
