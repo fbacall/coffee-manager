@@ -19,9 +19,7 @@ module.exports = function(db) {
     };
 
     User.prototype.recentCoffees = function (callback) {
-        Coffee.recent(this.card_id, 10, function (err, coffeeList) {
-            callback(err, coffeeList);
-        });
+        Coffee.recent(this.card_id, 10, callback);
     };
 
     User.prototype.addPayment = function (amount, callback) {
@@ -29,9 +27,7 @@ module.exports = function(db) {
     };
 
     User.prototype.recentPayments = function (callback) {
-        Payment.recent(this.card_id, 10, function (err, coffeeList) {
-            callback(err, coffeeList);
-        });
+        Payment.recent(this.card_id, 10, callback);
     };
 
     User.prototype.balance = function (callback) {
