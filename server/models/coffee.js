@@ -3,9 +3,16 @@
 module.exports = function(db) {
     var Coffee = {};
 
+    Coffee.price = 0.25;
+
+    Coffee.addQuery = db.prepare("INSERT INTO Coffees(id, user_card_id, unit_price) VALUES (NULL, ?, ?)");
+
     Coffee.recentQuery = db.prepare("SELECT * FROM Coffees ORDER BY id DESC LIMIT ?");
     Coffee.userRecentQuery = db.prepare("SELECT * FROM Coffees WHERE user_card_id = ? ORDER BY id DESC LIMIT ?");
-    Coffee.addQuery = db.prepare("INSERT INTO Coffees(id, user_card_id, unit_price) VALUES (NULL, ?, ?)");
+
+    Coffee.totalQuery = db.prepare("SELECT COUNT(*) FROM Coffees");
+    Coffee.userTotalQuery = db.prepare("SELECT COUNT(*) FROM Coffees WHERE user_card_id = ?");
+
     Coffee.costQuery = db.prepare("SELECT SUM(unit_price) FROM Coffees");
     Coffee.userCostQuery = db.prepare("SELECT SUM(unit_price) FROM Coffees WHERE user_card_id = ?");
 
@@ -33,6 +40,14 @@ module.exports = function(db) {
             db.doSelect(Coffee.userRecentQuery, [user_card_id, limit], callback);
         } else {
             db.doSelect(Coffee.recentQuery, limit, callback);
+        }
+    };
+
+    Coffee.total = function (user_card_id, callback) {
+        if(user_card_id) {
+            db.doSelect(Coffee.userTotalQuery, user_card_id, callback);
+        } else {
+            db.doSelect(Coffee.totalQuery, null, callback);
         }
     };
 

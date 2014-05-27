@@ -2,7 +2,9 @@
 
 module.exports = function(app, db) {
     var User = require('./models/user')(db);
+    var Coffee = require('./models/coffee')(db);
 
+    // Look up a user based on card ID
     app.param('user_card_id', function(req, res, next, id){
         User.find(id, function(err, user){
             if (err) {
@@ -17,6 +19,7 @@ module.exports = function(app, db) {
         });
     });
 
+    // Create a new user
     app.post('/users', function (req, res) {
         User.create(req.body.card_id, req.body.name, function (err, id) {
             if (err) {
@@ -31,6 +34,7 @@ module.exports = function(app, db) {
 
     });
 
+    // List user's recent coffees
     app.get('/users/:user_card_id/coffees', function (req, res) {
         req.user.recentCoffees(function (err, coffeeList) {
             if(err) {
@@ -42,6 +46,7 @@ module.exports = function(app, db) {
         });
     });
 
+    // Add a coffee for a user
     app.post('/users/:user_card_id/coffees', function (req, res) {
         req.user.addCoffee(function (err) {
             if(err) {
@@ -60,6 +65,7 @@ module.exports = function(app, db) {
         });
     });
 
+    // List user's payments
     app.get('/users/:user_card_id/payments', function (req, res) {
         req.user.recentPayments(function (err, coffeeList) {
             if(err) {
@@ -71,6 +77,7 @@ module.exports = function(app, db) {
         });
     });
 
+    // Add a payment for a user
     app.post('/users/:user_card_id/payments', function (req, res) {
         var payment = parseFloat(req.body.amount);
         console.log("Payment for user " + req.user.name + ' : ' + req.body.amount);
@@ -95,6 +102,7 @@ module.exports = function(app, db) {
         }
     });
 
+    // Check a users balance
     app.get('/users/:user_card_id/balance', function (req, res) {
         req.user.balance(function (err, balance) {
             if(err) {
@@ -104,5 +112,10 @@ module.exports = function(app, db) {
                 res.status(200).send(balance.toFixed(2));
             }
         });
+    });
+
+    // Get current coffee price
+    app.get('/price', function (req, res) {
+        res.status(200).send(Coffee.price.toFixed(2));
     });
 };

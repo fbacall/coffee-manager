@@ -14,7 +14,7 @@ module.exports = function(db) {
 
 
     User.prototype.addCoffee = function (callback) {
-        Coffee.create(this.card_id, 0.25, callback);
+        Coffee.create(this.card_id, Coffee.price, callback);
     };
 
     User.prototype.recentCoffees = function (callback) {
