@@ -3,7 +3,7 @@
 module.exports = function(app, db) {
     var User = require('./models/user')(db);
 
-    app.param('user_id', function(req, res, next, id){
+    app.param('user_card_id', function(req, res, next, id){
         User.find(id, function(err, user){
             if (err) {
                 console.log("Error while fetching user: " + err.stack);
@@ -12,7 +12,7 @@ module.exports = function(app, db) {
                 req.user = user;
                 next();
             } else {
-                res.status(404).send('User not found with ID: ' + id);
+                res.status(404).send('User not found with card ID: ' + id);
             }
         });
     });
@@ -31,7 +31,7 @@ module.exports = function(app, db) {
 
     });
 
-    app.get('/users/:user_id/coffees', function (req, res) {
+    app.get('/users/:user_card_id/coffees', function (req, res) {
         req.user.recentCoffees(function (err, coffeeList) {
             if(err) {
                 console.log("ERROR: " + err.stack);
@@ -42,7 +42,7 @@ module.exports = function(app, db) {
         });
     });
 
-    app.post('/users/:user_id/coffees', function (req, res) {
+    app.post('/users/:user_card_id/coffees', function (req, res) {
         req.user.addCoffee(function (err) {
             if(err) {
                 console.log("ERROR: " + err.stack);
@@ -60,7 +60,7 @@ module.exports = function(app, db) {
         });
     });
 
-    app.get('/users/:user_id/payments', function (req, res) {
+    app.get('/users/:user_card_id/payments', function (req, res) {
         req.user.recentPayments(function (err, coffeeList) {
             if(err) {
                 console.log("ERROR: " + err.stack);
@@ -71,7 +71,7 @@ module.exports = function(app, db) {
         });
     });
 
-    app.post('/users/:user_id/payments', function (req, res) {
+    app.post('/users/:user_card_id/payments', function (req, res) {
         var payment = parseFloat(req.body.amount);
         console.log("Payment for user " + req.user.name + ' : ' + req.body.amount);
         if(!isNaN(payment) && payment > 0) {
@@ -95,7 +95,7 @@ module.exports = function(app, db) {
         }
     });
 
-    app.get('/users/:user_id/balance', function (req, res) {
+    app.get('/users/:user_card_id/balance', function (req, res) {
         req.user.balance(function (err, balance) {
             if(err) {
                 console.log("ERROR: " + err.stack);

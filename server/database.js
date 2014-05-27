@@ -2,11 +2,11 @@
 
 module.exports = function() {
 // Config
-    var file = "test.db";
+    var file = "coffee.db";
     var TABLES = [
-        "CREATE TABLE Coffees (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER, date DATETIME DEFAULT CURRENT_TIMESTAMP, unit_price DECIMAL(5,2))",
-        "CREATE TABLE Users (id INTEGER PRIMARY KEY AUTOINCREMENT, card_id VARCHAR(255), name VARCHAR(255))",
-        "CREATE TABLE Payments (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER, date DATETIME DEFAULT CURRENT_TIMESTAMP, amount DECIMAL(5,2))"
+        "CREATE TABLE Coffees (id INTEGER PRIMARY KEY AUTOINCREMENT, user_card_id VARCHAR(255), date DATETIME DEFAULT CURRENT_TIMESTAMP, unit_price DECIMAL(5,2))",
+        "CREATE TABLE Users (card_id VARCHAR(255) PRIMARY KEY, name VARCHAR(255))",
+        "CREATE TABLE Payments (id INTEGER PRIMARY KEY AUTOINCREMENT, user_card_id VARCHAR(255), date DATETIME DEFAULT CURRENT_TIMESTAMP, amount DECIMAL(5,2))"
     ];
 
 // Database Setup

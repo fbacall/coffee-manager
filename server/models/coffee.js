@@ -4,16 +4,16 @@ module.exports = function(db) {
     var Coffee = {};
 
     Coffee.recentQuery = db.prepare("SELECT * FROM Coffees ORDER BY id DESC LIMIT ?");
-    Coffee.userRecentQuery = db.prepare("SELECT * FROM Coffees WHERE user_id = ? ORDER BY id DESC LIMIT ?");
-    Coffee.addQuery = db.prepare("INSERT INTO Coffees(id, user_id, unit_price) VALUES (NULL, ?, ?)");
+    Coffee.userRecentQuery = db.prepare("SELECT * FROM Coffees WHERE user_card_id = ? ORDER BY id DESC LIMIT ?");
+    Coffee.addQuery = db.prepare("INSERT INTO Coffees(id, user_card_id, unit_price) VALUES (NULL, ?, ?)");
     Coffee.costQuery = db.prepare("SELECT SUM(unit_price) FROM Coffees");
-    Coffee.userCostQuery = db.prepare("SELECT SUM(unit_price) FROM Coffees WHERE user_id = ?");
+    Coffee.userCostQuery = db.prepare("SELECT SUM(unit_price) FROM Coffees WHERE user_card_id = ?");
 
-    Coffee.create = function (user_id, unit_price, callback) {
-        db.doInsert(Coffee.addQuery, [user_id, unit_price], callback);
+    Coffee.create = function (user_card_id, unit_price, callback) {
+        db.doInsert(Coffee.addQuery, [user_card_id, unit_price], callback);
     };
 
-    Coffee.cost = function (user_id, callback) {
+    Coffee.cost = function (user_card_id, callback) {
         var f = function (err, costs) {
             var cost = parseFloat(costs[0]['SUM(unit_price)']);
             if(isNaN(cost))
@@ -21,16 +21,16 @@ module.exports = function(db) {
             callback(err, cost);
         };
 
-        if(user_id) {
-            db.doSelect(Coffee.userCostQuery, user_id, f);
+        if(user_card_id) {
+            db.doSelect(Coffee.userCostQuery, user_card_id, f);
         } else {
             db.doSelect(Coffee.costQuery, null, f);
         }
     };
     
-    Coffee.recent = function (user_id, limit, callback) {
-        if(user_id) {
-            db.doSelect(Coffee.userRecentQuery, [user_id, limit], callback);
+    Coffee.recent = function (user_card_id, limit, callback) {
+        if(user_card_id) {
+            db.doSelect(Coffee.userRecentQuery, [user_card_id, limit], callback);
         } else {
             db.doSelect(Coffee.recentQuery, limit, callback);
         }
