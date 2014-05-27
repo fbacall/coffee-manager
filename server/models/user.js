@@ -54,8 +54,8 @@ module.exports = function(db) {
         });
     };
 
-    User.create = function(user, callback) {
-        db.doInsert(User.createQuery, [user.card_id, user.name], callback);
+    User.create = function(card_id, name, callback) {
+        db.doInsert(User.createQuery, [card_id, name], callback);
     };
 
     return User;

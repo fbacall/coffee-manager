@@ -18,7 +18,7 @@ module.exports = function(app, db) {
     });
 
     app.post('/users', function (req, res) {
-        User.create(req.body.user, function (err, id) {
+        User.create(req.body.card_id, req.body.name, function (err, id) {
             if (err) {
                 console.log("Error while creating user: " + err.stack);
                 res.status(500).send('error');
