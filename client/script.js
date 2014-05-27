@@ -1,15 +1,48 @@
+var baseURL = 'http://localhost:3000';
+
 var coffeeColours = ['#522900', '#372819', '#4B3D30', '#522900', '#755433'];
 var colourIndex = 0;
 
 var tally = {};
 var recentCoffees = [];
+var coffeePrice = 0;
 var reader;
 
 $(document).ready(function () {
+
+    // Set up reader that listens for card swipes
     reader = new Reader();
     reader.callback = addCoffee;
-    render();
 
+    // Get coffee price and user list from server
+    console.log("Fetching user list");
+    $('#chart').html('Loading users...');
+
+    $.ajax({
+        url: baseURL + '/price',
+        success: function(price){
+            coffeePrice = price;
+            $.ajax({
+                url: baseURL + '/users',
+                success: function(users){
+                    tally = {};
+
+                    for(var i = 0; i < users.length; i++)
+                        tally[users[i]['card_id']] = {name: users[i]['name'], qty: users[i]['total_coffees']};
+
+                    render();
+                },
+                error: function(XMLHttpRequest, textStatus, errorThrown) {
+                    new Popup('Error loading user list').open();
+                }
+            });
+        },
+        error: function(XMLHttpRequest, textStatus, errorThrown) {
+            new Popup('Error getting coffee price').open();
+        }
+    });
+
+    // Button behaviour
     $('#check-button').click(function () {
         displayBalance();
     });
@@ -38,9 +71,7 @@ function render() {
 }
 
 function cost(qty) {
-    var bulk = Math.floor(qty / 20);
-    var rem = qty % 20;
-    return (bulk * 5 + rem * 0.3).toFixed(2);
+    return (qty * coffeePrice).toFixed(2)
 }
 
 function recentCoffee(name, number) {
@@ -51,29 +82,34 @@ function recentCoffee(name, number) {
 }
 
 function addCoffee(id) {
-    if(tally[id] != null) {
-        tally[id].qty += 1;
-        colourIndex++;
+    $.ajax({
+        type: "POST",
+        url: baseURL + '/users/' + id + '/coffees',
+        success: function(coffee){
+            tally[id].qty += 1;
+            colourIndex++;
 
-        recentCoffees.push({name: tally[id].name, number: tally[id].qty});
-        if(recentCoffees.length > 5)
-            recentCoffees.shift();
+            recentCoffees.push({name: tally[id].name, number: tally[id].qty});
+            if(recentCoffees.length > 5)
+                recentCoffees.shift();
 
-        var popup = new Popup(tally[id].name + ' +1 <br/>(' + tally[id].qty + ' total)', 2000);
+            var popup = new Popup(tally[id].name + ' +1 <br/>(' + tally[id].qty + ' total)', 2000);
 
-        popup.onOpen = function () {
-            reader.disable();
-        };
+            popup.onOpen = function () {
+                reader.disable();
+            };
 
-        popup.onClose = function () {
-            reader.enable();
-        };
+            popup.onClose = function () {
+                reader.enable();
+            };
 
-        popup.open();
-        render();
-    } else {
-        new Popup('Unrecognized ID: ' + id, 1000).open();
-    }
+            popup.open();
+            render();
+        },
+        error: function(XMLHttpRequest, textStatus, errorThrown) {
+            new Popup(errorThrown, 1000).open();
+        }
+    });
 }
 
 function displayBalance() {

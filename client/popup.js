@@ -7,7 +7,7 @@ var Popup = function (message, duration) {
 
     var popup = this;
 
-    if(duration > 0)
+    if(duration && duration > 0)
         this.timeout = window.setTimeout(function () { popup.close() }, duration);
 
     this.element.click(function () { popup.close() });
