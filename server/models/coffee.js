@@ -31,7 +31,7 @@ module.exports = function(db) {
         if(user_card_id) {
             db.doSelect(Coffee.userCostQuery, user_card_id, f);
         } else {
-            db.doSelect(Coffee.costQuery, null, f);
+            db.doSelect(Coffee.costQuery, [], f);
         }
     };
     
@@ -47,7 +47,7 @@ module.exports = function(db) {
         if(user_card_id) {
             db.doSelect(Coffee.userTotalQuery, user_card_id, callback);
         } else {
-            db.doSelect(Coffee.totalQuery, null, callback);
+            db.doSelect(Coffee.totalQuery, [], callback);
         }
     };
 
