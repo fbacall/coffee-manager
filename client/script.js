@@ -50,12 +50,11 @@ $(document).ready(function () {
 
 function render() {
     // Render "highscore" chart
-    chart = '<table><tr><th>Name</th><th>Qty</th><th>Cost</th></tr>';
+    chart = '<table><tr><th>Name</th><th>Qty</th></tr>';
     for(var key in tally) {
         chart += '<tr id="' + key + '">' +
             '<td>' + tally[key]['name'] + '</td>' +
             '<td>' + tally[key]['qty'] + '</td>' +
-            '<td>£' + cost(parseInt(tally[key]['qty'])) + '</td>' +
             '</tr>'
     }
     chart += '</table>';
@@ -118,11 +117,22 @@ function displayBalance() {
 
     popup.onOpen = function () {
         cb = reader.callback;
-        reader.callback = function (id) {
-            if(tally[id] != null)
-                popup.setMessage('<strong>' + tally[id].name + '</strong><br/>Coffees: ' + tally[id].qty + '<br/>Balance: £' + cost(tally[id].qty));
-            else
-                popup.setMessage('Invalid ID');
+        reader.callback = function (card_id) {
+            $.ajax({
+                url: baseURL + '/users/' + card_id + '/balance',
+                success: function(balance){
+                    var msg = '<strong>' + tally[card_id].name + '</strong><br/>Coffees: ' + tally[card_id].qty + '<br/>Balance: ';
+                    if(balance < 0)
+                        msg += '<span style="color: red">£' + balance + '</span>';
+                    else
+                        msg += '£' + balance;
+
+                    popup.setMessage(msg);
+                },
+                error: function(XMLHttpRequest, textStatus, errorThrown) {
+                    popup.setMessage('Invalid ID');
+                }
+            });
         };
     };
 
