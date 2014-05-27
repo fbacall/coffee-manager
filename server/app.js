@@ -19,6 +19,18 @@ module.exports = function(app, db) {
         });
     });
 
+    // Lookup user list with their coffee totals
+    app.get('/users', function (req, res) {
+        User.list(function (err, list) {
+            if (err) {
+                console.log("ERROR: " + err.stack);
+                res.status(500).send('error');
+            } else {
+                res.status(200).send(list);
+            }
+        });
+    });
+
     // Create a new user
     app.post('/users', function (req, res) {
         User.create(req.body.card_id, req.body.name, function (err, id) {
@@ -31,7 +43,6 @@ module.exports = function(app, db) {
                 });
             }
         });
-
     });
 
     // List user's recent coffees

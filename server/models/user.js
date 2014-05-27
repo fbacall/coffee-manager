@@ -11,6 +11,7 @@ module.exports = function(db) {
 
     User.selectQuery = db.prepare("SELECT * FROM Users WHERE card_id = ? LIMIT 1");
     User.createQuery = db.prepare("INSERT INTO Users(card_id, name) VALUES (?, ?)");
+    User.listQuery = db.prepare("SELECT Users.*, COUNT(Coffees.user_card_id) AS total_coffees FROM Users LEFT OUTER JOIN Coffees ON Users.card_id = Coffees.user_card_id GROUP BY Users.card_id");
 
 
     User.prototype.addCoffee = function (callback) {
@@ -56,6 +57,10 @@ module.exports = function(db) {
 
     User.create = function(card_id, name, callback) {
         db.doInsert(User.createQuery, [card_id, name], callback);
+    };
+
+    User.list = function(callback) {
+        db.doSelect(User.listQuery, [], callback);
     };
 
     return User;
