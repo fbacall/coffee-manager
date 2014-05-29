@@ -17,11 +17,24 @@ $(document).ready(function () {
     // Get coffee price and user list from server
     console.log("Fetching user list");
     $('#chart').html('Loading users...');
+    initialize();
 
+    // Reload user list every 10 seconds incase a user has been added.
+    window.setInterval(initialize, 10000);
+
+    // Button behaviour
+    $('#check-button').click(function () {
+        displayBalance();
+    });
+});
+
+// Load user/price data
+function initialize() {
     $.ajax({
         url: baseURL + '/price',
         success: function(price){
             coffeePrice = price;
+            $('#coffee-price').html('' + coffeePrice * 100 + 'p');
             $.ajax({
                 url: baseURL + '/users',
                 success: function(users){
@@ -41,12 +54,7 @@ $(document).ready(function () {
             new Popup('Error getting coffee price').open();
         }
     });
-
-    // Button behaviour
-    $('#check-button').click(function () {
-        displayBalance();
-    });
-});
+}
 
 function render() {
     // Render "highscore" chart
@@ -64,20 +72,19 @@ function render() {
     // Render recent coffee list
     var recent = $('#recent');
     recent.html('');
-    for(var i = 0; i < recentCoffees.length; i++) {
-        recent.prepend(recentCoffee(recentCoffees[i].name, recentCoffees[i].number));
-    }
+    colourIndex = 0;
+    for(var i = 0; i < recentCoffees.length; i++)
+        recent.prepend(recentCoffee(recentCoffees[i]));
 }
 
 function cost(qty) {
     return (qty * coffeePrice).toFixed(2)
 }
 
-function recentCoffee(name, number) {
-    var date = new Date();
+function recentCoffee(coffee) {
     var colour = coffeeColours[colourIndex++ % coffeeColours.length];
     return '<div class="recent-coffee" style="border-color: ' + colour + '">' +
-        name + ' #' + number + '<br/><em>' + date.toUTCString().slice(0,-3) + '</em></div>';
+        coffee.name + ' #' + coffee.number + '<br/><em>' + coffee.date.toUTCString().slice(0,-3) + '</em></div>';
 }
 
 function addCoffee(id) {
@@ -87,8 +94,7 @@ function addCoffee(id) {
         success: function(coffee){
             tally[id].qty += 1;
             colourIndex++;
-
-            recentCoffees.push({name: tally[id].name, number: tally[id].qty});
+            recentCoffees.push({name: tally[id].name, number: tally[id].qty, date: new Date()});
             if(recentCoffees.length > 5)
                 recentCoffees.shift();
 
