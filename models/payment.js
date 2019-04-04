@@ -14,11 +14,11 @@ module.exports = function(db) {
     };
 
     Payment.total = function (user_card_id, callback) {
-        var f = function (err, payments) {
+        var f = function (payments) {
             var payment = parseFloat(payments[0]['SUM(amount)']);
             if(isNaN(payment))
                 payment = 0;
-            callback(err, payment);
+            callback(payment);
         };
 
         if(user_card_id) {

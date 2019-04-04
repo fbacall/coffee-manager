@@ -1,5 +1,4 @@
 'use strict';
-
 module.exports = function() {
 // Config
     var file = "coffee.db";
@@ -20,43 +19,26 @@ module.exports = function() {
         fs.openSync(file, "w");
     }
 
-    var sqlite3 = require("sqlite3").verbose();
-    var db = new sqlite3.Database(file);
+    var Database = require('better-sqlite3');
+    var db = new Database(file, { verbose: console.log });
 
 // Create tables if new DB
     if (!exists) {
         console.log("Creating tables...");
-        db.serialize(function () {
-            for (var i = 0; i < TABLES.length; i++) {
-                console.log("Running: " + TABLES[i]);
-                db.run(TABLES[i]);
-            }
-        });
+        var migration = fs.readFileSync('tables.sql', 'utf8');
+        db.exec(migration);
     }
 
 // Convenience functions
     db.doInsert = function (statement, values, callback) {
-        db.serialize(function () {
-            statement.run(values, function (err) {
-                if(callback)
-                    callback(err, this.lastID);
-            });
-        });
+        var info = statement.run(values);
+        if(callback)
+            callback(info.lastInsertRowid);
     };
 
     db.doSelect = function (statement, values, callback) {
-        var output = [];
-
-        db.serialize(function () {
-            statement.each(values,
-                function (err, row) {
-                    output.push(row);
-                },
-                function (err, rowCount) {
-                    callback(err, output);
-                }
-            );
-        });
+        var output = statement.all(values);
+        callback(output);
     };
 
     return db;

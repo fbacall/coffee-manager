@@ -32,22 +32,20 @@ module.exports = function(db) {
 
     User.prototype.balance = function (callback) {
         var u = this;
-        Coffee.cost(u.card_id, function (err, cost) {
-            Payment.total(u.card_id, function (err, payment) {
-                callback(err, (payment - cost));
+        Coffee.cost(u.card_id, function (cost) {
+            Payment.total(u.card_id, function (payment) {
+                callback((payment - cost));
             });
         });
     };
 
     User.find = function (card_id, callback) {
-        db.doSelect(User.selectQuery, card_id, function (err, users) {
+        db.doSelect(User.selectQuery, card_id, function (users) {
             var user;
-            if(err) {
-                console.log(err.stack);
-            } else if (users[0]) {
+            if (users[0]) {
                 user = new User(users[0].card_id, users[0].name);
             }
-            callback(err, user);
+            callback(user);
         });
     };
 

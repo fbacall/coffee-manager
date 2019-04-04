@@ -21,11 +21,11 @@ module.exports = function(db) {
     };
 
     Coffee.cost = function (user_card_id, callback) {
-        var f = function (err, costs) {
+        var f = function (costs) {
             var cost = parseFloat(costs[0]['SUM(unit_price)']);
             if(isNaN(cost))
                 cost = 0;
-            callback(err, cost);
+            callback(cost);
         };
 
         if(user_card_id) {
