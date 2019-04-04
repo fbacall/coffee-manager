@@ -3,7 +3,7 @@ var express = require('express');
 var app = express();
 
 app.use(express.json()); // To parse json in POST requests
-app.use(express.static(__dirname + '/public')); // For serving the client pages
+app.use(express.static('public')); // For serving the client pages
 
 var db = require('./database')();
 
